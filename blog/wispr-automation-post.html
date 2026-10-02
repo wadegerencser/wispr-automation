@@ -1,0 +1,36 @@
+<!-- wp:html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<article style="max-width:820px; margin:0 auto; padding:0 20px 60px;">
+
+<p style="color:#ffffff !important;">WISPr keeps coming up in the kind of conversations I have about guest Wi-Fi and roaming between networks that don't belong to the same operator, and after spending a few weeks building out the 9800 WLC automation project and watching how fast it closes the gap between "I know the CLI" and "I don't have to type the CLI," I found myself circling back to the roaming and auth layer, the part underneath the SSID and the radio profile and the RF tuning, the part where a guest device actually gets authenticated and billed and handed off from one ISP's hotspot to another's, and that part is WISPr, which stands for Wireless Internet Service Provider roaming, a Wi-Fi Alliance and Wireless Broadband Alliance smart-client protocol that moves XML over HTTP and HTTPS to run the universal access method redirect flow that puts a captive portal in front of a user before RADIUS ever gets a packet (Wi-Fi Alliance, "WISPr Specification").</p>
+
+<p style="color:#ffffff !important;">The idea for a dedicated project came out of noticing how much of the actual engineering work on a Cisco Catalyst 9800 running IOS-XE, when you're setting up guest and roaming auth, is identical from one controller to the next, the RADIUS server address and the auth and accounting ports and the AAA method lists and the webauth parameter map with its redirect-for-login URL, and once you've typed that sequence of CLI lines on three or four controllers you start wanting it in a playbook instead of in your fingers, which is exactly the itch that produced <a href="https://github.com/wadegerencser/9800-wlc-automation" style="color:#1dd8a3 !important;">9800-wlc-automation</a> in the first place, so wispr-automation picks up where that one leaves off, same Ansible-and-Terraform-and-NETCONF shape, same cisco.ios and cisco.iosxe collection modules doing the real work, same idea that a controller config task you'll repeat belongs in a file you can read and diff and version, not in a terminal history you'll forget by next quarter.</p>
+
+<div style="background:#131a2b !important; border-left:3px solid #1dd8a3 !important; padding:16px 20px; margin:28px 0;">
+<p style="color:#d4dff5 !important; margin:0;">WISPr is the roaming and auth layer. The 9800 RF and tagging work is the radio layer. Different problem, same controller, same automation philosophy.</p>
+</div>
+
+<p style="color:#ffffff !important;">What actually got built is three pieces that line up with the three ways people touch a 9800 in practice, and the first is an Ansible playbook that configures a RADIUS server entry, builds the server group, writes the AAA authentication and accounting method lists, and lands a webauth parameter map with the WISPr smart-client redirect URL on it, all through cisco.ios.ios_config calls that are declarative in the vars file and imperative in the CLI lines they push, which is the same pattern IOS-XE automation has used for years and the same reason the module exists instead of a raw ios_command loop (Ansible Project, "cisco.ios.ios_config"). The second piece is a Terraform module targeting the RESTCONF provider from CiscoDevNet, which is the version of this that fits better in a pipeline where state matters more than idempotent CLI pushes, where you want a plan and an apply and a diff you can review before anything touches a live controller. And the third piece is a standalone NETCONF script using ncclient against the Cisco-IOS-XE-aaa YANG model, which exists because some environments require model-driven config end to end and won't accept a CLI-wrapped Ansible module no matter how clean the playbook looks, and having all three in one repo means picking the right tool for the environment instead of picking the tool you already had open.</p>
+
+<p style="color:#ffffff !important;">None of this is a WISPr client. It doesn't speak the XML protocol itself, it doesn't do roaming settlement or billing reconciliation between ISPs, and it isn't production-hardened, it's the Cisco controller config side only, RADIUS and AAA and the redirect plumbing a 9800 needs before a WISPr smart client's handshake even has somewhere to land, and I'm calling that scope on purpose because the honest version of a new project says what it isn't before anyone has to find out the hard way.</p>
+
+<p style="color:#ffffff !important;">CI runs the same validation shape as the 9800 repo, yamllint and ansible-lint and a Terraform fmt-check-plus-validate matrix on every pull request, which matters more for a solo repo than it sounds like it should, because the whole point of writing playbooks instead of CLI notes is that a linter catches the mistake before a controller does.</p>
+
+<p style="color:#ffffff !important;">This one's early, experimental is the honest status, and that's fine. It's public, it's mine, and it's the next piece of a toolkit I keep adding to one controller problem at a time.</p>
+
+<p style="color:#5f7099 !important; font-size:0.9em;">Repo: <a href="https://github.com/wadegerencser/wispr-automation" style="color:#1dd8a3 !important;">github.com/wadegerencser/wispr-automation</a></p>
+
+<p style="color:#5f7099 !important; font-size:0.85em; margin-top:40px;">Works Cited: Wi-Fi Alliance. "WISPr Specification." Wireless Broadband Alliance. Ansible Project. "cisco.ios.ios_config module." Ansible Documentation.</p>
+
+</article>
+
+</body>
+</html>
+<!-- /wp:html -->
