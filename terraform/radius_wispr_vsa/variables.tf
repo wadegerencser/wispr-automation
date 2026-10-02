@@ -1,6 +1,6 @@
 # =============================================================================
 # WISPr Automation
-# Repository : sac-mgerencs-wispr-automation
+# Repository : wispr-automation
 # Author     : Wade Gerencser (mgerencs)
 # Copyright  : (c) 2026 Wade Gerencser.
 # License    : MIT — see LICENSE
