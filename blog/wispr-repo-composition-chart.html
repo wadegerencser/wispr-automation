@@ -1,0 +1,68 @@
+<!-- wp:html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  .viz-root {
+    --surface-1: #0b0f1a;
+    --text-primary: #d4dff5;
+    --text-secondary: #5f7099;
+    --series-ansible: #3987e5;
+    --series-terraform: #d95926;
+    --series-netconf: #199e70;
+    --series-ci: #c98500;
+    --gridline: #1c2b42;
+  }
+  .viz-root { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wispr-bar-row { display: flex; align-items: center; gap: 14px; margin: 10px 0; }
+  .wispr-bar-label { width: 150px; flex-shrink: 0; font-size: 14px; color: var(--text-primary); text-align: right; }
+  .wispr-bar-track { flex: 1; height: 22px; background: var(--surface-1); border-radius: 4px; position: relative; }
+  .wispr-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; }
+  .wispr-bar-value { font-size: 13px; color: var(--text-primary); margin-left: 10px; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="viz-root" style="max-width:640px; margin:0 auto; padding:20px;">
+  <p style="color:var(--text-secondary); font-size:13px; margin:0 0 4px;">wispr-automation — lines of code by category (302 total)</p>
+
+  <div class="wispr-bar-row">
+    <div class="wispr-bar-label">Ansible</div>
+    <div class="wispr-bar-track">
+      <div class="wispr-bar-fill" style="width:26%; background:var(--series-ansible);"></div>
+    </div>
+    <div class="wispr-bar-value">79 lines · 26%</div>
+  </div>
+
+  <div class="wispr-bar-row">
+    <div class="wispr-bar-label">Terraform</div>
+    <div class="wispr-bar-track">
+      <div class="wispr-bar-fill" style="width:26%; background:var(--series-terraform);"></div>
+    </div>
+    <div class="wispr-bar-value">79 lines · 26%</div>
+  </div>
+
+  <div class="wispr-bar-row">
+    <div class="wispr-bar-label">CI (validate.yml)</div>
+    <div class="wispr-bar-track">
+      <div class="wispr-bar-fill" style="width:29%; background:var(--series-ci);"></div>
+    </div>
+    <div class="wispr-bar-value">87 lines · 29%</div>
+  </div>
+
+  <div class="wispr-bar-row">
+    <div class="wispr-bar-label">NETCONF (Python)</div>
+    <div class="wispr-bar-track">
+      <div class="wispr-bar-fill" style="width:19%; background:var(--series-netconf);"></div>
+    </div>
+    <div class="wispr-bar-value">57 lines · 19%</div>
+  </div>
+
+  <p style="color:var(--text-secondary); font-size:12px; margin-top:14px;">Source: wispr-automation repo, github.com/wadegerencser/wispr-automation, as of initial release.</p>
+</div>
+
+</body>
+</html>
+<!-- /wp:html -->

@@ -58,6 +58,13 @@ production fix.
 | `terraform/radius_wispr_vsa/` | Terraform module for RADIUS vendor-specific attribute (VSA) policy supporting WISPr smart-client redirect |
 | `netconf/` | Python NETCONF scripts (`ncclient`) for IOS-XE YANG-based config |
 | `inventory/` | Ansible inventory templates |
+| `blog/` | WordPress-ready blog post draft and repo-composition chart (self-contained HTML) |
+
+## Repo composition
+
+Lines of code by category (302 total): Ansible 79 (26%), Terraform 79 (26%),
+CI config 87 (29%), NETCONF/Python 57 (19%). See `blog/wispr-repo-composition-chart.html`
+for the rendered version.
 
 ## Platform support
 
