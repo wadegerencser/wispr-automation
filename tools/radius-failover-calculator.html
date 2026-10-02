@@ -1,0 +1,119 @@
+<!-- wp:html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RADIUS Failover Delay Calculator</title>
+<style>
+  .viz-root {
+    --surface-1: #0b0f1a;
+    --surface-2: #131a2b;
+    --text-primary: #d4dff5;
+    --text-secondary: #5f7099;
+    --series-bar: #3987e5;
+    --series-warn: #c98500;
+    --series-crit: #e34948;
+    --border: #1c2b42;
+  }
+  .viz-root { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; max-width: 640px; margin: 0 auto; padding: 20px; }
+  .rfc-field { display: flex; align-items: center; justify-content: space-between; margin: 10px 0; gap: 12px; }
+  .rfc-field label { color: var(--text-primary); font-size: 14px; }
+  .rfc-field input[type="range"] { flex: 1; }
+  .rfc-field .rfc-val { width: 48px; text-align: right; color: var(--text-primary); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .rfc-bar-track { height: 24px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 18px; }
+  .rfc-bar-fill { height: 100%; background: var(--series-bar); transition: width 0.15s ease; }
+  .rfc-result { color: var(--text-primary); font-size: 15px; margin-top: 10px; }
+  .rfc-result strong { font-size: 20px; }
+  .rfc-note { color: var(--text-secondary); font-size: 12px; margin-top: 14px; }
+</style>
+</head>
+<body>
+
+<div class="viz-root" style="background:#0b0f1a !important; border-radius:8px;">
+  <p style="color:var(--text-secondary) !important; font-size:13px; margin:0 0 10px;">RADIUS failover delay calculator</p>
+
+  <div class="rfc-field">
+    <label for="rfc-timeout">Per-request timeout (seconds)</label>
+    <input type="range" id="rfc-timeout" min="1" max="15" value="5" step="1">
+    <span class="rfc-val" id="rfc-timeout-val">5</span>
+  </div>
+
+  <div class="rfc-field">
+    <label for="rfc-retransmit">Retransmit attempts</label>
+    <input type="range" id="rfc-retransmit" min="0" max="6" value="2" step="1">
+    <span class="rfc-val" id="rfc-retransmit-val">2</span>
+  </div>
+
+  <div class="rfc-field">
+    <label for="rfc-servers">RADIUS servers in group</label>
+    <input type="range" id="rfc-servers" min="1" max="4" value="1" step="1">
+    <span class="rfc-val" id="rfc-servers-val">1</span>
+  </div>
+
+  <div class="rfc-bar-track">
+    <div class="rfc-bar-fill" id="rfc-bar-fill" style="width:20%;"></div>
+  </div>
+
+  <p class="rfc-result">Worst-case delay before fallback: <strong id="rfc-result-val" style="color:var(--series-bar) !important;">15s</strong></p>
+
+  <p class="rfc-note">
+    Formula: timeout &times; (retransmit + 1) &times; servers = worst-case seconds
+    a client waits before the WLC falls through to the next method in the AAA
+    method list (e.g. <code>local</code>), per RFC 2865 &sect; 2.5 retry
+    behavior. Default values (5s timeout, 2 retransmits, 1 server) match
+    <code>vars/wispr_radius_vsa_vars.yml</code> in this repo &mdash; 15 seconds
+    is a long time for a guest to stare at a captive portal before local
+    fallback auth takes over.
+  </p>
+</div>
+
+<script>
+(function() {
+  var timeoutEl = document.getElementById('rfc-timeout');
+  var retransmitEl = document.getElementById('rfc-retransmit');
+  var serversEl = document.getElementById('rfc-servers');
+  var timeoutVal = document.getElementById('rfc-timeout-val');
+  var retransmitVal = document.getElementById('rfc-retransmit-val');
+  var serversVal = document.getElementById('rfc-servers-val');
+  var resultVal = document.getElementById('rfc-result-val');
+  var barFill = document.getElementById('rfc-bar-fill');
+  var MAX_DELAY = 15 * 7 * 4; // theoretical max across all sliders, for bar scaling
+
+  function recalc() {
+    var timeout = parseInt(timeoutEl.value, 10);
+    var retransmit = parseInt(retransmitEl.value, 10);
+    var servers = parseInt(serversEl.value, 10);
+
+    timeoutVal.textContent = timeout;
+    retransmitVal.textContent = retransmit;
+    serversVal.textContent = servers;
+
+    var delay = timeout * (retransmit + 1) * servers;
+    resultVal.textContent = delay + 's';
+
+    var pct = Math.min(100, (delay / MAX_DELAY) * 100);
+    barFill.style.width = pct + '%';
+
+    if (delay <= 15) {
+      barFill.style.background = '#3987e5';
+      resultVal.style.color = '#3987e5';
+    } else if (delay <= 40) {
+      barFill.style.background = '#c98500';
+      resultVal.style.color = '#c98500';
+    } else {
+      barFill.style.background = '#e34948';
+      resultVal.style.color = '#e34948';
+    }
+  }
+
+  timeoutEl.addEventListener('input', recalc);
+  retransmitEl.addEventListener('input', recalc);
+  serversEl.addEventListener('input', recalc);
+  recalc();
+})();
+</script>
+
+</body>
+</html>
+<!-- /wp:html -->

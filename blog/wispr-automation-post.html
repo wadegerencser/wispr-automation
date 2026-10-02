@@ -80,6 +80,86 @@
   <p style="color:var(--text-secondary) !important; font-size:12px; margin-top:14px;">Source: wispr-automation repo, github.com/wadegerencser/wispr-automation, as of initial release.</p>
 </div>
 
+<p style="color:#ffffff !important;">The timeout and retransmit values in that playbook aren't arbitrary either, they come straight out of how RADIUS retry behavior works under RFC 2865, where a client waits <code>timeout</code> seconds for a response, resends up to <code>retransmit</code> times, and only then moves to the next server in the group or falls through to the next method in the AAA method list, and multiplying those out tells you exactly how long a guest sits looking at a WISPr captive portal before local fallback auth kicks in, so here's a small calculator built on that same formula, with the sliders defaulting to this repo's own values.</p>
+
+<div style="margin:28px 0; background:#0b0f1a !important; border-radius:8px; padding:4px;">
+<div class="rfc-viz-root" style="--surface-1:#0b0f1a; --border:#1c2b42; font-family:system-ui,-apple-system,'Segoe UI',sans-serif; max-width:600px; margin:0 auto; padding:16px;">
+  <p style="color:#5f7099 !important; font-size:13px; margin:0 0 10px;">RADIUS failover delay calculator</p>
+
+  <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0; gap:12px;">
+    <label for="rfc-timeout" style="color:#d4dff5 !important; font-size:14px;">Per-request timeout (seconds)</label>
+    <input type="range" id="rfc-timeout" min="1" max="15" value="5" step="1" style="flex:1;">
+    <span id="rfc-timeout-val" style="width:30px; text-align:right; color:#d4dff5 !important; font-size:14px;">5</span>
+  </div>
+
+  <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0; gap:12px;">
+    <label for="rfc-retransmit" style="color:#d4dff5 !important; font-size:14px;">Retransmit attempts</label>
+    <input type="range" id="rfc-retransmit" min="0" max="6" value="2" step="1" style="flex:1;">
+    <span id="rfc-retransmit-val" style="width:30px; text-align:right; color:#d4dff5 !important; font-size:14px;">2</span>
+  </div>
+
+  <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0; gap:12px;">
+    <label for="rfc-servers" style="color:#d4dff5 !important; font-size:14px;">RADIUS servers in group</label>
+    <input type="range" id="rfc-servers" min="1" max="4" value="1" step="1" style="flex:1;">
+    <span id="rfc-servers-val" style="width:30px; text-align:right; color:#d4dff5 !important; font-size:14px;">1</span>
+  </div>
+
+  <div style="height:24px; background:#0b0f1a !important; border:1px solid #1c2b42 !important; border-radius:4px; overflow:hidden; margin-top:18px;">
+    <div id="rfc-bar-fill" style="height:100%; background:#3987e5; width:20%; transition:width 0.15s ease;"></div>
+  </div>
+
+  <p style="color:#d4dff5 !important; font-size:15px; margin-top:10px;">Worst-case delay before fallback: <strong id="rfc-result-val" style="color:#3987e5 !important; font-size:20px;">15s</strong></p>
+
+  <p style="color:#5f7099 !important; font-size:12px; margin-top:14px;">Formula: timeout &times; (retransmit + 1) &times; servers = worst-case seconds a client waits before the WLC falls through to the next AAA method (RFC 2865 &sect; 2.5). Defaults match this repo's <code>vars/wispr_radius_vsa_vars.yml</code>.</p>
+</div>
+</div>
+
+<script>
+(function() {
+  var timeoutEl = document.getElementById('rfc-timeout');
+  var retransmitEl = document.getElementById('rfc-retransmit');
+  var serversEl = document.getElementById('rfc-servers');
+  var timeoutVal = document.getElementById('rfc-timeout-val');
+  var retransmitVal = document.getElementById('rfc-retransmit-val');
+  var serversVal = document.getElementById('rfc-servers-val');
+  var resultVal = document.getElementById('rfc-result-val');
+  var barFill = document.getElementById('rfc-bar-fill');
+  var MAX_DELAY = 15 * 7 * 4;
+
+  function recalc() {
+    var timeout = parseInt(timeoutEl.value, 10);
+    var retransmit = parseInt(retransmitEl.value, 10);
+    var servers = parseInt(serversEl.value, 10);
+
+    timeoutVal.textContent = timeout;
+    retransmitVal.textContent = retransmit;
+    serversVal.textContent = servers;
+
+    var delay = timeout * (retransmit + 1) * servers;
+    resultVal.textContent = delay + 's';
+
+    var pct = Math.min(100, (delay / MAX_DELAY) * 100);
+    barFill.style.width = pct + '%';
+
+    if (delay <= 15) {
+      barFill.style.background = '#3987e5';
+      resultVal.style.color = '#3987e5';
+    } else if (delay <= 40) {
+      barFill.style.background = '#c98500';
+      resultVal.style.color = '#c98500';
+    } else {
+      barFill.style.background = '#e34948';
+      resultVal.style.color = '#e34948';
+    }
+  }
+
+  timeoutEl.addEventListener('input', recalc);
+  retransmitEl.addEventListener('input', recalc);
+  serversEl.addEventListener('input', recalc);
+  recalc();
+})();
+</script>
+
 <p style="color:#5f7099 !important; font-size:0.9em;">Repo: <a href="https://github.com/wadegerencser/wispr-automation" style="color:#1dd8a3 !important;">github.com/wadegerencser/wispr-automation</a></p>
 
 <p style="color:#5f7099 !important; font-size:0.85em; margin-top:40px;">Works Cited: Wi-Fi Alliance. "WISPr Specification." Wireless Broadband Alliance. IETF. Rigney, C., et al. "Remote Authentication Dial In User Service (RADIUS)." RFC 2865. Ansible Project. "cisco.ios.ios_config module." Ansible Documentation.</p>

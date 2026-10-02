@@ -58,13 +58,23 @@ production fix.
 | `terraform/radius_wispr_vsa/` | Terraform module for RADIUS vendor-specific attribute (VSA) policy supporting WISPr smart-client redirect |
 | `netconf/` | Python NETCONF scripts (`ncclient`) for IOS-XE YANG-based config |
 | `inventory/` | Ansible inventory templates |
-| `blog/` | WordPress-ready blog post draft and repo-composition chart (self-contained HTML) |
+| `blog/` | WordPress-ready blog post draft, with the repo-composition chart and failover calculator inlined (self-contained HTML) |
+| `tools/` | Standalone RADIUS failover delay calculator (self-contained HTML) |
+| `scripts/` | `publish_wispr_post.py` — pushes `blog/wispr-automation-post.html` to wirelesswithwade.com as a draft via the WordPress REST API |
 
 ## Repo composition
 
 Lines of code by category (302 total): Ansible 79 (26%), Terraform 79 (26%),
-CI config 87 (29%), NETCONF/Python 57 (19%). See `blog/wispr-repo-composition-chart.html`
+CI config 87 (29%), NETCONF/Python 57 (19%). See `blog/wispr-automation-post.html`
 for the rendered version.
+
+## RADIUS failover delay calculator
+
+`tools/radius-failover-calculator.html` computes worst-case WISPr captive-portal
+delay before AAA falls through to the next method, from the formula
+`timeout × (retransmit + 1) × servers` (RFC 2865 § 2.5 retry behavior). Sliders
+default to this repo's own `vars/wispr_radius_vsa_vars.yml` values (5s timeout,
+2 retransmits, 1 server = 15s worst case). Also embedded directly in the blog post.
 
 ## Platform support
 
