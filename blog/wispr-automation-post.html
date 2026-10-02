@@ -4,6 +4,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  .viz-root {
+    --surface-1: #0b0f1a;
+    --text-primary: #d4dff5;
+    --text-secondary: #5f7099;
+    --series-ansible: #3987e5;
+    --series-terraform: #d95926;
+    --series-netconf: #199e70;
+    --series-ci: #c98500;
+  }
+  .viz-root { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wispr-bar-row { display: flex; align-items: center; gap: 14px; margin: 10px 0; }
+  .wispr-bar-label { width: 150px; flex-shrink: 0; font-size: 14px; color: var(--text-primary); text-align: right; }
+  .wispr-bar-track { flex: 1; height: 22px; background: var(--surface-1); border-radius: 4px; position: relative; }
+  .wispr-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; }
+  .wispr-bar-value { font-size: 13px; color: var(--text-primary); margin-left: 10px; white-space: nowrap; }
+</style>
 </head>
 <body>
 
@@ -25,7 +42,43 @@
 
 <p style="color:#ffffff !important;">This one's early, experimental is the honest status, and that's fine. It's public, it's mine, and it's the next piece of a toolkit I keep adding to one controller problem at a time, and here's what that toolkit looks like under the hood right now, by line count, Ansible and Terraform tied at 26% each, CI config at 29%, NETCONF at 19%, which tells its own small story about where the engineering time actually goes on a project like this, because the validation harness ends up being just as much code as the automation it's validating.</p>
 
-<div style="margin:28px 0;"><!-- embed blog/wispr-repo-composition-chart.html here as an iframe or inline block --></div>
+<div class="viz-root" style="max-width:640px; margin:28px auto; padding:20px; background:#0b0f1a !important; border-radius:8px;">
+  <p style="color:var(--text-secondary) !important; font-size:13px; margin:0 0 4px;">wispr-automation — lines of code by category (302 total)</p>
+
+  <div class="wispr-bar-row">
+    <div class="wispr-bar-label" style="color:#d4dff5 !important;">Ansible</div>
+    <div class="wispr-bar-track">
+      <div class="wispr-bar-fill" style="width:26%; background:var(--series-ansible);"></div>
+    </div>
+    <div class="wispr-bar-value" style="color:#d4dff5 !important;">79 lines · 26%</div>
+  </div>
+
+  <div class="wispr-bar-row">
+    <div class="wispr-bar-label" style="color:#d4dff5 !important;">Terraform</div>
+    <div class="wispr-bar-track">
+      <div class="wispr-bar-fill" style="width:26%; background:var(--series-terraform);"></div>
+    </div>
+    <div class="wispr-bar-value" style="color:#d4dff5 !important;">79 lines · 26%</div>
+  </div>
+
+  <div class="wispr-bar-row">
+    <div class="wispr-bar-label" style="color:#d4dff5 !important;">CI (validate.yml)</div>
+    <div class="wispr-bar-track">
+      <div class="wispr-bar-fill" style="width:29%; background:var(--series-ci);"></div>
+    </div>
+    <div class="wispr-bar-value" style="color:#d4dff5 !important;">87 lines · 29%</div>
+  </div>
+
+  <div class="wispr-bar-row">
+    <div class="wispr-bar-label" style="color:#d4dff5 !important;">NETCONF (Python)</div>
+    <div class="wispr-bar-track">
+      <div class="wispr-bar-fill" style="width:19%; background:var(--series-netconf);"></div>
+    </div>
+    <div class="wispr-bar-value" style="color:#d4dff5 !important;">57 lines · 19%</div>
+  </div>
+
+  <p style="color:var(--text-secondary) !important; font-size:12px; margin-top:14px;">Source: wispr-automation repo, github.com/wadegerencser/wispr-automation, as of initial release.</p>
+</div>
 
 <p style="color:#5f7099 !important; font-size:0.9em;">Repo: <a href="https://github.com/wadegerencser/wispr-automation" style="color:#1dd8a3 !important;">github.com/wadegerencser/wispr-automation</a></p>
 
