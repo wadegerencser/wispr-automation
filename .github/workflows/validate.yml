@@ -1,0 +1,87 @@
+# =============================================================================
+# WISPr Automation
+# Repository : sac-mgerencs-wispr-automation
+# Author     : Wade Gerencser (mgerencs)
+# Copyright  : (c) 2026 Wade Gerencser.
+# License    : MIT — see LICENSE
+# =============================================================================
+#
+# Validate – Ansible Lint + Terraform Validate
+#
+# Runs on every PR and push to main. Validates:
+#   • Ansible playbooks (ansible-lint)
+#   • Terraform modules (terraform fmt -check + terraform validate)
+#   • YAML syntax (yamllint)
+#
+# Compatible with:
+#   macOS / Linux runners (GitHub-hosted ubuntu-latest)
+#   Windows (runs on ubuntu-latest — no Windows runner needed for linting)
+# =============================================================================
+
+name: Validate
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  yamllint:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yamllint
+        run: pip install yamllint
+      - name: Lint all YAML files
+        run: |
+          yamllint -d '{
+            extends: default,
+            rules: {
+              line-length: {max: 120},
+              comments: disable,
+              truthy: disable
+            }
+          }' playbooks/ vars/ inventory/
+
+  ansible-lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    needs: yamllint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Ansible + collections
+        run: |
+          pip install ansible ansible-lint
+          ansible-galaxy collection install cisco.ios cisco.iosxe
+      - name: Run ansible-lint (playbooks/)
+        run: |
+          ansible-lint \
+            --exclude=.github \
+            --warn-list=yaml \
+            playbooks/
+
+  terraform:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~> 1.5"
+      - name: Terraform fmt check
+        working-directory: terraform/radius_wispr_vsa
+        run: terraform fmt -check -recursive
+      - name: Terraform init
+        working-directory: terraform/radius_wispr_vsa
+        run: terraform init -backend=false
+      - name: Terraform validate
+        working-directory: terraform/radius_wispr_vsa
+        run: terraform validate
+        env:
+          TF_VAR_wlc_host:         "192.0.2.1"
+          TF_VAR_wlc_username:     "admin"
+          TF_VAR_wlc_password:     "validate-only"
+          TF_VAR_radius_server_ip: "192.0.2.10"

@@ -1,0 +1,17 @@
+# =============================================================================
+# WISPr Automation
+# Repository : sac-mgerencs-wispr-automation
+# Author     : Wade Gerencser (mgerencs)
+# Copyright  : (c) 2026 Wade Gerencser.
+# License    : MIT — see LICENSE
+# =============================================================================
+---
+radius_server_name: WISPR-AAA
+radius_server_ip: 192.0.2.10
+radius_key: "{{ vault_radius_key }}"
+radius_group_name: WISPR-GROUP
+auth_method_list: WISPR-AUTH
+acct_method_list: WISPR-ACCT
+webauth_parameter_map: WISPR-WEBAUTH
+wispr_login_redirect_url: "http://portal.example.com/login"
+wispr_portal_ip: 192.0.2.20

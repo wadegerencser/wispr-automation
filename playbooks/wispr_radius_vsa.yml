@@ -1,0 +1,43 @@
+# =============================================================================
+# WISPr Automation
+# Repository : sac-mgerencs-wispr-automation
+# Author     : Wade Gerencser (mgerencs)
+# Copyright  : (c) 2026 Wade Gerencser.
+# License    : MIT — see LICENSE
+# =============================================================================
+---
+- name: Configure RADIUS server and WISPr vendor-specific attributes
+  hosts: wlc
+  gather_facts: false
+  vars_files:
+    - ../vars/wispr_radius_vsa_vars.yml
+
+  tasks:
+    - name: Add RADIUS authentication/accounting server
+      cisco.ios.ios_config:
+        lines:
+          - radius server {{ radius_server_name }}
+          - address ipv4 {{ radius_server_ip }} auth-port 1812 acct-port 1813
+          - key {{ radius_key }}
+          - timeout 5
+          - retransmit 2
+
+    - name: Bind RADIUS server to a server group
+      cisco.ios.ios_config:
+        lines:
+          - aaa group server radius {{ radius_group_name }}
+          - server name {{ radius_server_name }}
+
+    - name: Create AAA method lists for WISPr guest auth and accounting
+      cisco.ios.ios_config:
+        lines:
+          - aaa authentication login {{ auth_method_list }} group {{ radius_group_name }} local
+          - aaa accounting network {{ acct_method_list }} start-stop group {{ radius_group_name }}
+
+    - name: Configure webauth parameter map with WISPr smart-client redirect
+      cisco.ios.ios_config:
+        lines:
+          - parameter-map type webauth {{ webauth_parameter_map }}
+          - type webauth
+          - redirect for-login {{ wispr_login_redirect_url }}
+          - redirect portal ipv4 {{ wispr_portal_ip }}
